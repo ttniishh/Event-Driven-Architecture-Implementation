@@ -3,117 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flight Booking - Saga Demo</title>
+  <title>Flight Booking (Saga Pattern)</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f4f4f4;
-      color: #333;
-    }
-    h1 {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 40px;
       text-align: center;
-      color: #444;
     }
-    form {
-      max-width: 400px;
-      margin: 2rem auto;
-      padding: 2rem;
+    .container {
       background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     input[type="text"] {
+      padding: 10px;
       width: 100%;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      width: 100%;
-      padding: 0.8rem;
-      background: #007bff;
-      border: none;
-      color: #fff;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
+      margin: 10px 0;
+      font-size: 16px;
     }
     label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin: 10px 0;
+      text-align: left;
     }
-    #response {
-      text-align: center;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    .logs {
-      max-width: 700px;
-      margin: 2rem auto;
-      background: #222;
-      color: #0f0;
-      padding: 1rem;
+    button {
+      background: #007bff;
+      color: white;
+      padding: 12px 20px;
+      border: none;
       border-radius: 8px;
-      height: 250px;
-      overflow-y: auto;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    textarea {
+      width: 100%;
+      margin-top: 20px;
+      height: 280px;
+      background: #111;
+      color: #00ff00;
       font-family: monospace;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .checkbox-group {
+      text-align: left;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>🛫 Flight Booking (Saga Pattern)</h1>
+    <input id="name" type="text" placeholder="Enter Passenger Name" />
 
-  <h1>🛫 Flight Booking (Saga Pattern)</h1>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="failFlight" /> ❌ Simulate Flight Service Failure</label>
+      <label><input type="checkbox" id="failLuggage" /> ❌ Simulate Luggage Service Failure</label>
+      <label><input type="checkbox" id="failMeal" /> ❌ Simulate Meal Service Failure</label>
+      <label><input type="checkbox" id="failPayment" /> ❌ Simulate Payment Service Failure</label>
+    </div>
 
-  <form id="bookingForm">
-    <label for="name">Passenger Name:</label>
-    <input type="text" id="name" name="name" required />
+    <button onclick="book()">🚀 Book Flight</button>
 
-    <label>
-      <input type="checkbox" id="simulateFailure" name="simulateFailure" />
-      Simulate Meal Service Failure
-    </label>
-
-    <button type="submit">Book Flight</button>
-    <div id="response"></div>
-  </form>
-
-  <div class="logs" id="logs">
-    Loading logs...
+    <textarea id="logBox" readonly></textarea>
   </div>
 
   <script>
-    const form = document.getElementById("bookingForm");
-    const responseDiv = document.getElementById("response");
-    const logsDiv = document.getElementById("logs");
+    async function book() {
+      const name = document.getElementById("name").value.trim();
+      const failFlight = document.getElementById("failFlight").checked;
+      const failLuggage = document.getElementById("failLuggage").checked;
+      const failMeal = document.getElementById("failMeal").checked;
+      const failPayment = document.getElementById("failPayment").checked;
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      responseDiv.textContent = "Booking...";
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
 
-      const formData = new FormData();
-      formData.append("name", document.getElementById("name").value);
-      formData.append("simulate_failure", document.getElementById("simulateFailure").checked);
+      const body = {
+        user_id: name,
+        simulate_flight_failure: failFlight,
+        simulate_luggage_failure: failLuggage,
+        simulate_meal_failure: failMeal,
+        simulate_payment_failure: failPayment
+      };
 
-      const res = await fetch("https://event-driven-architecture-implementation.onrender.com/book_flight", {
+      const res = await fetch("/book_flight", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
       });
 
-      const data = await res.json();
-      responseDiv.textContent = `Status: ${data.status}`;
-      loadLogs();
-    });
-
-    async function loadLogs() {
-      const res = await fetch("https://event-driven-architecture-implementation.onrender.com/logs");
-      const data = await res.json();
-      logsDiv.textContent = data.logs;
+      await fetchLogs();
     }
 
-    setInterval(loadLogs, 3000); // auto-refresh logs
-    loadLogs();
+    async function fetchLogs() {
+      const res = await fetch("/logs");
+      const data = await res.json();
+      document.getElementById("logBox").value = data.logs.join("\n");
+    }
+
+    window.onload = fetchLogs;
   </script>
 </body>
 </html>
