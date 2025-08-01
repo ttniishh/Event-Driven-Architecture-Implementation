@@ -7,4 +7,4 @@ class LuggageService:
 
     @staticmethod
     def rollback(booking_id: str):
-        log(f"[{booking_id}] Luggage rolled back")
+        log(f"[{booking_id}] Luggage removed (rollback)")
