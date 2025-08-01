@@ -2,9 +2,9 @@ from log_manager import log
 
 class MealService:
     @staticmethod
-    def add_meal(booking_id: str, meal: str):
-        log(f"[{booking_id}] Meal preference added: {meal}")
+    def add_meal(booking_id: str):
+        log(f"[{booking_id}] Meal added")
 
     @staticmethod
     def rollback(booking_id: str):
-        log(f"[{booking_id}] Meal preference rolled back")
+        log(f"[{booking_id}] Meal removed (rollback)")
