@@ -1,12 +1,11 @@
-from typing import List
+from datetime import datetime
 
-logs: List[str] = []
+logs = []
 
 def log(message: str):
-    print(message)
-    logs.append(message)
-    if len(logs) > 1000:
-        logs.pop(0)
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    logs.append(f"{timestamp} {message}")
+    print(f"{timestamp} {message}")
 
 def get_logs():
-    return logs
+    return logs[-100:]  # Return last 100 logs for performance
